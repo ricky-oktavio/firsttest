@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:firsttest/app/data/model/UserModel.dart';
+import 'package:firsttest/app/modules/detail/controllers/detail_controller.dart';
 import 'package:firsttest/app/routes/app_pages.dart';
 import 'package:firsttest/theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +12,8 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
+  final DetailController detailController = Get.put(DetailController());
+  final formKey = GlobalKey<FormState>();
   Widget header() {
     return Container(
       margin: EdgeInsets.only(
@@ -42,11 +48,29 @@ class HomeView extends GetView<HomeController> {
             ),
             SizedBox(width: 16),
             Expanded(
-              child: TextFormField(
-                style: primaryTextStyle,
-                decoration: InputDecoration.collapsed(
-                  hintText: 'Search',
-                  hintStyle: primaryTextStyle,
+              child: Form(
+                key: formKey,
+                child: TextFormField(
+                  textInputAction: TextInputAction.search,
+                  controller: controller.textEditingController,
+                  style: primaryTextStyle,
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter some text';
+                    }
+                    return null;
+                  },
+                  decoration: InputDecoration.collapsed(
+                    hintText: 'Search',
+                    hintStyle: primaryTextStyle,
+                  ),
+                  onFieldSubmitted: (value) {
+                    print(value);
+                    if (formKey.currentState!.validate()) {
+                      detailController.detailData(value);
+                    }
+                  },
                 ),
               ),
             )
@@ -57,56 +81,66 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget recentComponent() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultMargin),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Recent',
-            style: primaryTextStyle.copyWith(
-              fontSize: 18,
-              fontWeight: bold,
-            ),
+    return Obx(
+      () => Visibility(
+        visible: detailController.recentSeacrh.length != 0,
+        child: Container(
+          margin: EdgeInsets.only(left: defaultMargin),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Recent',
+                style: primaryTextStyle.copyWith(
+                  fontSize: 18,
+                  fontWeight: bold,
+                ),
+              ),
+              SizedBox(
+                height: 12,
+              ),
+              Container(
+                height: 130,
+                child: ListView.builder(
+                  itemCount: detailController.recentSeacrh.length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    final split =
+                        detailController.recentSeacrh[index].split(',');
+                    String name = split[0];
+                    String picture = split[1];
+                    return Column(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: NetworkImage(picture),
+                                  fit: BoxFit.cover)),
+                        ),
+                        Text(
+                          name,
+                          style: primaryTextStyle.copyWith(
+                            fontSize: 12,
+                            fontWeight: bold,
+                          ),
+                        )
+                      ],
+                    );
+                  },
+                ),
+              )
+            ],
           ),
-          SizedBox(
-            height: 12,
-          ),
-          Container(
-            height: 130,
-            child: ListView.builder(
-              itemCount: 20,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      height: 100,
-                      width: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    Text(
-                      'Name',
-                      style: primaryTextStyle.copyWith(
-                        fontSize: 12,
-                        fontWeight: bold,
-                      ),
-                    )
-                  ],
-                );
-              },
-            ),
-          )
-        ],
+        ),
       ),
     );
   }
 
-  Widget bodyHeader() {
+  Widget bodyHeader(String total) {
     return Container(
       margin: EdgeInsets.only(
           left: defaultMargin, right: defaultMargin, top: defaultMargin),
@@ -116,7 +150,7 @@ class HomeView extends GetView<HomeController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Friend (200)',
+                'Friends ($total)',
                 style: primaryTextStyle.copyWith(
                   fontSize: 18,
                   fontWeight: bold,
@@ -141,80 +175,92 @@ class HomeView extends GetView<HomeController> {
   }
 
   Widget body() {
-    return ListView.builder(
-      scrollDirection: Axis.vertical,
-      itemCount: 20,
-      padding: EdgeInsets.symmetric(horizontal: defaultMargin),
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemBuilder: (context, index) {
-        return InkWell(
-          onTap: () {
-            Get.toNamed(Routes.DETAIL);
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 10),
-            child: Row(
+    return FutureBuilder<List<Results>?>(
+        future: controller.getFriends(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (!snapshot.hasData) {
+            return Center(
+              child: Text(
+                'No Data Found',
+                style: primaryTextStyle,
+              ),
+            );
+          } else {
+            List<Results>? data = snapshot.data;
+            return Column(
               children: [
-                Container(
-                  height: 75,
-                  width: 75,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.amber,
-                  ),
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Name',
-                            style: primaryTextStyle.copyWith(
-                              fontSize: 16,
-                              fontWeight: medium,
+                bodyHeader(snapshot.data!.length.toString()),
+                ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: 20,
+                  padding: EdgeInsets.symmetric(horizontal: defaultMargin),
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    Results results = data![index];
+                    return InkWell(
+                      onTap: () {
+                        Get.toNamed(Routes.DETAIL,
+                            arguments: results.name!.first);
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(vertical: 10),
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 70,
+                              width: 70,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(results.picture!.medium!),
+                                ),
+                              ),
                             ),
-                          ),
-                          Icon(CupertinoIcons.add)
-                        ],
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '098188172772',
-                            style: secondaryTextStyle.copyWith(
-                              fontSize: 14,
-                              fontWeight: medium,
+                            SizedBox(
+                              width: 10,
                             ),
-                          ),
-                          Text(
-                            '@name',
-                            style: secondaryTextStyle.copyWith(
-                              fontSize: 14,
-                              fontWeight: medium,
+                            Expanded(
+                              flex: 4,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    results.name!.first!,
+                                    style: primaryTextStyle.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: medium,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    results.email!,
+                                    style: secondaryTextStyle.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: medium,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
               ],
-            ),
-          ),
-        );
-      },
-    );
+            );
+          }
+        });
   }
 
   @override
@@ -226,13 +272,7 @@ class HomeView extends GetView<HomeController> {
           scrollDirection: Axis.vertical,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              header(),
-              searchBar(),
-              recentComponent(),
-              bodyHeader(),
-              body()
-            ],
+            children: [header(), searchBar(), recentComponent(), body()],
           ),
         ),
       ),
