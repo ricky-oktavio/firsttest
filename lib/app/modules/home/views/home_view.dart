@@ -174,10 +174,18 @@ class HomeView extends GetView<HomeController> {
                             height: 100,
                             width: 100,
                             decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                    image: NetworkImage(data.picture!.large!),
-                                    fit: BoxFit.cover)),
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: NetworkImage(data.picture!.large!),
+                                  fit: BoxFit.cover),
+                            ),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Icon(
+                                CupertinoIcons.circle_fill,
+                                color: fourtTextColor,
+                              ),
+                            ),
                           ),
                           Text(
                             data.name!.first!,
