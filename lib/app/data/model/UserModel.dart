@@ -272,7 +272,7 @@ class Name {
       );
 
   Map<String, dynamic> toJson() => {
-        "title": titleValues.reverse[title],
+        "title": title,
         "first": first,
         "last": last,
       };

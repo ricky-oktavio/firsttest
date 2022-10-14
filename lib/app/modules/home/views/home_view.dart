@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firsttest/app/data/model/UserModel.dart';
 import 'package:firsttest/app/modules/detail/controllers/detail_controller.dart';
 import 'package:firsttest/app/routes/app_pages.dart';
@@ -68,7 +67,59 @@ class HomeView extends GetView<HomeController> {
                   onFieldSubmitted: (value) {
                     print(value);
                     if (formKey.currentState!.validate()) {
-                      detailController.detailData(value);
+                      // detailController.detailData(value);
+                      Get.defaultDialog(
+                        backgroundColor: bgColor2,
+                        title: 'Choose your option',
+                        titleStyle: primaryTextStyle,
+                        content: Text(
+                          'Please select the data from which to search',
+                          style: primaryTextStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        confirm: ElevatedButton(
+                          style:
+                              ElevatedButton.styleFrom(primary: fourtTextColor),
+                          onPressed: () {
+                            controller.data.forEach(
+                              (element) {
+                                if (element.name!.first!.contains(value)) {
+                                  print('element : ${jsonEncode(element)}');
+                                  var datajsonE = jsonEncode(element);
+                                  Results datas =
+                                      Results.fromJson(jsonDecode(datajsonE));
+                                  if (datajsonE.isNotEmpty) {
+                                    Get.toNamed(Routes.DETAIL,
+                                        arguments: datas);
+                                  }
+                                  detailController
+                                      .updateRecentSearch(datajsonE);
+                                } else if (element.email!.contains(value)) {
+                                  print('element : ${jsonEncode(element)}');
+                                  var datajsonE = jsonEncode(element);
+                                  Results datas =
+                                      Results.fromJson(jsonDecode(datajsonE));
+                                  if (datajsonE.isNotEmpty) {
+                                    Get.toNamed(Routes.DETAIL,
+                                        arguments: datas);
+                                  }
+                                  detailController
+                                      .updateRecentSearch(datajsonE);
+                                }
+                              },
+                            );
+                          },
+                          child: Text('Local'),
+                        ),
+                        cancel: ElevatedButton(
+                          style:
+                              ElevatedButton.styleFrom(primary: fourtTextColor),
+                          onPressed: () {
+                            detailController.detailData(value);
+                          },
+                          child: Text('Api'),
+                        ),
+                      );
                     }
                   },
                 ),
@@ -105,30 +156,38 @@ class HomeView extends GetView<HomeController> {
                   itemCount: detailController.recentSeacrh.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
-                    final split =
-                        detailController.recentSeacrh[index].split(',');
-                    String name = split[0];
-                    String picture = split[1];
-                    return Column(
-                      children: [
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 4),
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: NetworkImage(picture),
-                                  fit: BoxFit.cover)),
-                        ),
-                        Text(
-                          name,
-                          style: primaryTextStyle.copyWith(
-                            fontSize: 12,
-                            fontWeight: bold,
+                    var json = jsonEncode(detailController.recentSeacrh);
+                    List<dynamic> dada = jsonDecode(json);
+                    Results data = Results.fromJson(
+                      jsonDecode(
+                        dada[index],
+                      ),
+                    );
+                    return GestureDetector(
+                      onTap: () {
+                        Get.toNamed(Routes.DETAIL, arguments: data);
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.symmetric(horizontal: 4),
+                            height: 100,
+                            width: 100,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: NetworkImage(data.picture!.large!),
+                                    fit: BoxFit.cover)),
                           ),
-                        )
-                      ],
+                          Text(
+                            data.name!.first!,
+                            style: primaryTextStyle.copyWith(
+                              fontSize: 12,
+                              fontWeight: bold,
+                            ),
+                          )
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -204,8 +263,12 @@ class HomeView extends GetView<HomeController> {
                     Results results = data![index];
                     return InkWell(
                       onTap: () {
-                        Get.toNamed(Routes.DETAIL,
-                            arguments: results.name!.first);
+                        var datas = jsonEncode(results);
+                        Results parsed = Results.fromJson(json.decode(datas));
+                        print(jsonEncode(parsed));
+                        var dt = jsonEncode(parsed);
+                        detailController.updateRecentSearch(dt);
+                        Get.toNamed(Routes.DETAIL, arguments: parsed);
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 10),
@@ -272,7 +335,12 @@ class HomeView extends GetView<HomeController> {
           scrollDirection: Axis.vertical,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [header(), searchBar(), recentComponent(), body()],
+            children: [
+              header(),
+              searchBar(),
+              recentComponent(),
+              body(),
+            ],
           ),
         ),
       ),

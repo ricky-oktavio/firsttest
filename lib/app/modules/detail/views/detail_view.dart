@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import '../controllers/detail_controller.dart';
 
 class DetailView extends GetView<DetailController> {
-  final String keys = Get.arguments;
+  final Results userDetail = Get.arguments;
   Widget header(String img, String name, String region) {
     return Container(
       margin: EdgeInsets.only(top: defaultMargin),
@@ -61,203 +61,181 @@ class DetailView extends GetView<DetailController> {
       ),
       body: DefaultTabController(
         length: 2,
-        child: FutureBuilder<List<Results>?>(
-            future: controller.detailData(keys),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (!snapshot.hasData) {
-                return Center(
-                  child: Text('Data not found'),
-                );
-              } else {
-                List<Results>? data = snapshot.data;
-                Results dataResult = data![0];
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: header(
-                          dataResult.picture!.large!,
-                          '${dataResult.name!.title}, ${dataResult.name!.first!}, ${dataResult.name!.last}',
-                          '${dataResult.location!.state}, ${dataResult.location!.country}'),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 100, vertical: 30),
-                      child: TabBar(
-                        indicatorColor: fourtTextColor,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        labelColor: fourtTextColor,
-                        unselectedLabelColor: secondaryTextColor,
-                        labelStyle: TextStyle(
-                          fontWeight: bold,
-                          fontSize: 18,
-                        ),
-                        tabs: [
-                          Tab(
-                            text: 'Detail',
-                          ),
-                          Tab(
-                            text: 'Call Log',
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          Container(
-                            margin:
-                                EdgeInsets.symmetric(horizontal: defaultMargin),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/phonenonebg.png'),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            dataResult.phone!,
-                                            style: primaryTextStyle.copyWith(
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          Text(
-                                            'Number - ${dataResult.location!.country}',
-                                            style: secondaryTextStyle.copyWith(
-                                              fontSize: 14,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: fourtTextColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        CupertinoIcons.phone,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: fourtTextColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        CupertinoIcons.chat_bubble,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                  ],
-                                ),
-                                Divider(
-                                  thickness: 2,
-                                  color: secondaryTextColor,
-                                ),
-                                Row(
-                                  children: [
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              'assets/gmailnobg.png'),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    Expanded(
-                                      child: Container(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              dataResult.email!,
-                                              style: primaryTextStyle.copyWith(
-                                                fontSize: 16,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            Text(
-                                              'Email Account',
-                                              style:
-                                                  secondaryTextStyle.copyWith(
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: fourtTextColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        CupertinoIcons.mail,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            child: Center(
-                              child: Text(
-                                'Don\'t have call Log',
-                                style: primaryTextStyle.copyWith(
-                                  fontSize: 24,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: header(
+                  userDetail.picture!.large!,
+                  '${userDetail.name!.title}, ${userDetail.name!.first!}, ${userDetail.name!.last}',
+                  '${userDetail.location!.state}, ${userDetail.location!.country}'),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 100, vertical: 30),
+              child: TabBar(
+                indicatorColor: fourtTextColor,
+                indicatorSize: TabBarIndicatorSize.label,
+                labelColor: fourtTextColor,
+                unselectedLabelColor: secondaryTextColor,
+                labelStyle: TextStyle(
+                  fontWeight: bold,
+                  fontSize: 18,
+                ),
+                tabs: [
+                  Tab(
+                    text: 'Detail',
+                  ),
+                  Tab(
+                    text: 'Call Log',
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: defaultMargin),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage('assets/phonenonebg.png'),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
                             ),
-                          )
-                        ],
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    userDetail.phone!,
+                                    style: primaryTextStyle.copyWith(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Number - ${userDetail.location!.country}',
+                                    style: secondaryTextStyle.copyWith(
+                                      fontSize: 14,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: fourtTextColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                CupertinoIcons.phone,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: fourtTextColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                CupertinoIcons.chat_bubble,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                          ],
+                        ),
+                        Divider(
+                          thickness: 2,
+                          color: secondaryTextColor,
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage('assets/gmailnobg.png'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Container(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      userDetail.email!,
+                                      style: primaryTextStyle.copyWith(
+                                        fontSize: 16,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      'Email Account',
+                                      style: secondaryTextStyle.copyWith(
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: fourtTextColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                CupertinoIcons.mail,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    child: Center(
+                      child: Text(
+                        'Don\'t have call Log',
+                        style: primaryTextStyle.copyWith(
+                          fontSize: 24,
+                        ),
                       ),
-                    )
-                  ],
-                );
-              }
-            }),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

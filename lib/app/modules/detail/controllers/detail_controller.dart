@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:firsttest/app/data/model/UserModel.dart';
 import 'package:firsttest/app/routes/app_pages.dart';
 import 'package:get/get.dart';
@@ -26,29 +25,25 @@ class DetailController extends GetxController {
   @override
   void onClose() {}
   void increment() => count.value++;
-  Future<List<Results>?> detailData(String query) async {
+  Future<Results?> detailData(String query) async {
     print('searchFunction Working');
     Uri uri = Uri.parse('https://randomuser.me/api/?name=$query');
     var response = await http.get(uri);
-    List map = (jsonDecode(response.body) as Map<String, dynamic>)['results'];
-    print(map);
-    print(map[0]['name']['first']);
-    print(map[0]['picture']['large']);
-    searchData.value =
-        '${map[0]['name']['first']},${map[0]['picture']['medium']}';
-    updateRecentSearch();
-    if (dataSearch.isNotEmpty) {
-      Get.toNamed(Routes.DETAIL, arguments: map[0]['name']['first']);
+    var json = (jsonDecode(response.body) as Map<String, dynamic>)['results'];
+    print(jsonEncode(json[0]));
+    var datas = jsonEncode(json[0]);
+    updateRecentSearch(datas);
+    Results results = Results.fromJson(json[0]);
+    if (datas.isNotEmpty) {
+      Get.toNamed(Routes.DETAIL, arguments: results);
     }
-    dataSearch = map.map((e) => Results.fromJson(e)).toList();
-    print(dataSearch);
-    return dataSearch;
+    return Results.fromJson(json[0]);
   }
 
-  updateRecentSearch() async {
+  updateRecentSearch(String data) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
-    var query = searchData.value;
+    var query = data;
     if (recentSeacrh.length == 5) {
       recentSeacrh.removeLast();
     }
