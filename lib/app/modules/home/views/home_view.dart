@@ -271,12 +271,39 @@ class HomeView extends GetView<HomeController> {
                     Results results = data![index];
                     return InkWell(
                       onTap: () {
-                        var datas = jsonEncode(results);
-                        Results parsed = Results.fromJson(json.decode(datas));
-                        print(jsonEncode(parsed));
-                        var dt = jsonEncode(parsed);
-                        detailController.updateRecentSearch(dt);
-                        Get.toNamed(Routes.DETAIL, arguments: parsed);
+                        Get.defaultDialog(
+                          backgroundColor: bgColor2,
+                          title: 'Choose your option',
+                          titleStyle: primaryTextStyle,
+                          content: Text(
+                            'Please select the data from which to search',
+                            style: primaryTextStyle,
+                            textAlign: TextAlign.center,
+                          ),
+                          confirm: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: fourtTextColor),
+                            onPressed: () {
+                              // Get.toNamed(Routes.DETAIL, arguments: data);
+                              var datas = jsonEncode(results);
+                              Results parsed =
+                                  Results.fromJson(json.decode(datas));
+                              print(jsonEncode(parsed));
+                              var dt = jsonEncode(parsed);
+                              detailController.updateRecentSearch(dt);
+                              Get.toNamed(Routes.DETAIL, arguments: parsed);
+                            },
+                            child: Text('Local'),
+                          ),
+                          cancel: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: fourtTextColor),
+                            onPressed: () {
+                              detailController.detailData(results.name!.first!);
+                            },
+                            child: Text('Api'),
+                          ),
+                        );
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 10),

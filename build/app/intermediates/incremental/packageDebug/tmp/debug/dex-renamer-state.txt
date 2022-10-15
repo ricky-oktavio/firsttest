@@ -1,4 +1,4 @@
-#Fri Oct 14 23:37:23 WIB 2022
+#Sat Oct 15 20:44:15 WIB 2022
 base.0=/Volumes/Data Kerja/Flutter/firsttest/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
 renamed.0=classes.dex
 path.0=classes.dex
